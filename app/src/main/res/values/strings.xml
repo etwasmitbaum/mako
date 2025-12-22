@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Colibri</string>
+    <string name="app_description">A lightweight, distraction-free Android launcher built for focus and simplicity. Privacy-first by design, fast, minimal, and entirely on-device.</string>
+    <string name="icon_block_desc">No Background Tasks</string>
+    <string name="icon_ads_desc">No Ads</string>
+    <string name="icon_location_desc">No Trackers</string>
+    <string name="icon_offline_desc">Works Offline</string>
+    <string name="icon_license_desc">License GPLv3</string>
 </resources>

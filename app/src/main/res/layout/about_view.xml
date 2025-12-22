@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:padding="32dp"
+    android:background="@color/bg_dark">
+
+    <TextView
+        android:text="@string/app_name"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_light" />
+
+    <TextView
+        android:text="@string/app_description"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_light" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="start">
+
+        <com.rama.colibri.ListItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/icon_ads_desc"
+            app:icon="@drawable/ads_click" />
+
+        <com.rama.colibri.ListItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/icon_block_desc"
+            app:icon="@drawable/block" />
+
+        <com.rama.colibri.ListItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/icon_location_desc"
+            app:icon="@drawable/location_on" />
+
+        <com.rama.colibri.ListItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/icon_offline_desc"
+            app:icon="@drawable/wifi" />
+
+        <com.rama.colibri.ListItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/icon_license_desc"
+            app:icon="@drawable/shield" />
+
+    </LinearLayout>
+
+</LinearLayout>

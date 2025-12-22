@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
+    android:textColor="@color/text_light"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@color/bg_dark"
+    android:padding="32dp">
 
         <LinearLayout
             android:orientation="vertical"
@@ -11,33 +13,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <!-- Clock -->
         <Button
+            android:id="@+id/time"
             android:text="23:00"
-            android:textSize="32sp"
+            android:textSize="38sp"
             android:padding="0dp"
             android:background="@android:color/transparent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/text_light"
             android:gravity="start|center_vertical"
             />
 
-        <!-- Date / Weather row -->
-
         <TextView
             android:id="@+id/date"
+            android:textColor="@color/text_light"
             android:text="01 Jan 1999 | 0°F | 0%"
             android:textSize="12sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         </LinearLayout>
 
-    <!-- App list -->
     <ListView
         android:id="@+id/appList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:dividerHeight="12dp"
         android:divider="@null" />
 
 </LinearLayout>
