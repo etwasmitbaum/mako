@@ -12,6 +12,7 @@ class MainActivity : Activity() {
 
     private lateinit var timeText: TextView
     private lateinit var dateText: TextView
+    private lateinit var batteryText: TextView
     private lateinit var listView: ListView
     private lateinit var clockManager: ClockManager
     private lateinit var batteryHelper: BatteryManagerHelper
@@ -29,25 +30,29 @@ class MainActivity : Activity() {
         setTheme(R.style.Theme_Mako_Obsidian)
         setContentView(R.layout.view_home)
 
+        // Find views
         timeText = findViewById(R.id.time)
         dateText = findViewById(R.id.date)
+        batteryText = findViewById(R.id.battery)
         listView = findViewById(R.id.appList)
 
-        // ClockManager
-        clockManager = ClockManager(timeText, dateText) { formattedDate ->
-            updateDateLine(formattedDate)
+        // ClockManager updates dateText
+        clockManager = ClockManager(timeText, dateText)
+
+        // Start the clock updates
+        clockManager.start()
+
+        // BatteryManagerHelper updates batteryText
+        batteryHelper = BatteryManagerHelper(this) { batteryStatus ->
+            batteryText.text = batteryStatus
         }
+        batteryHelper.register()
 
         // App list
         val appListHelper = AppListHelper(this, listView)
         appListHelper.setup()
 
-        // ✅ BatteryManagerHelper
-        batteryHelper = BatteryManagerHelper(this) { status ->
-            updateDateLine(status)
-        }
-        batteryHelper.register()
-
+        // Open clock on time click
         timeText.setOnClickListener {
             val clockIntent = Intent(Intent.ACTION_MAIN).apply {
                 addCategory("android.intent.category.APP_CLOCK")
@@ -68,9 +73,4 @@ class MainActivity : Activity() {
         super.onDestroy()
         batteryHelper.unregister()
     }
-
-    private fun updateDateLine(text: String) {
-        dateText.text = text
-    }
 }
-

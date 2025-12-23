@@ -2,7 +2,6 @@ package com.rama.mako
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
