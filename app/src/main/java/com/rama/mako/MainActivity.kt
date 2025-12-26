@@ -73,16 +73,29 @@ class MainActivity : Activity() {
 
         // Open system clock
         timeText.setOnClickListener {
-            val clockIntent = Intent(Intent.ACTION_MAIN).apply {
-                addCategory("android.intent.category.APP_CLOCK")
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+            val pm = packageManager
+
+            val intents = listOf(
+                // Standard (rarely works, but try first)
+                Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_CLOCK"),
+
+                // AOSP / many OEM clocks
+                Intent("android.intent.action.SHOW_ALARMS"),
+
+                // Last resort: let user choose
+                Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_ALARM")
+            )
+
+            for (intent in intents) {
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                if (intent.resolveActivity(pm) != null) {
+                    startActivity(intent)
+                    return@setOnClickListener
+                }
             }
 
-            if (clockIntent.resolveActivity(packageManager) != null) {
-                startActivity(clockIntent)
-            } else {
-                Toast.makeText(this, "No clock app found", Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(this, "No clock app found", Toast.LENGTH_SHORT).show()
         }
 
         // Settings
