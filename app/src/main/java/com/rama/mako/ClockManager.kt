@@ -1,5 +1,6 @@
 package com.rama.mako
 
+import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
 import android.widget.TextView
@@ -10,7 +11,8 @@ import java.util.Locale
 
 class ClockManager(
     private val timeTextView: TextView,
-    private val dateTextView: TextView
+    private val dateTextView: TextView,
+    private val prefs: SharedPreferences
 ) {
     private val handler = Handler(Looper.getMainLooper())
 
@@ -22,22 +24,27 @@ class ClockManager(
 
     private val runnable = object : Runnable {
         override fun run() {
+            val showClock = prefs.getBoolean("show_clock", true)
+            val showDate = prefs.getBoolean("show_date", true)
+
             val now = LocalDateTime.now()
             val locale = Locale.getDefault()
 
-            // Time
-            timeTextView.text = now.format(timeFormatter)
+            if (showClock) {
+                timeTextView.text = now.format(timeFormatter)
+            }
 
-            // Date parts
-            val weekday = now.dayOfWeek
-                .getDisplayName(TextStyle.FULL, locale)
+            if (showDate) {
+                val weekday = now.dayOfWeek
+                    .getDisplayName(TextStyle.FULL, locale)
 
-            val dayOfYear = now.dayOfYear
-            val totalDays = now.toLocalDate().lengthOfYear()
+                val dayOfYear = now.dayOfYear
+                val totalDays = now.toLocalDate().lengthOfYear()
 
-            dateTextView.text =
-                "$weekday :: ${now.format(dateFormatter)} :: $dayOfYear/$totalDays"
-                    .uppercase(locale)
+                dateTextView.text =
+                    "$weekday :: ${now.format(dateFormatter)} :: $dayOfYear/$totalDays"
+                        .uppercase(locale)
+            }
 
             handler.postDelayed(this, 1000)
         }
@@ -46,3 +53,4 @@ class ClockManager(
     fun start() = handler.post(runnable)
     fun stop() = handler.removeCallbacks(runnable)
 }
+

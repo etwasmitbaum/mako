@@ -14,32 +14,33 @@ class MainActivity : Activity() {
     private lateinit var dateText: TextView
     private lateinit var batteryText: TextView
     private lateinit var listView: ListView
+
     private lateinit var clockManager: ClockManager
     private lateinit var batteryHelper: BatteryManagerHelper
 
-    private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
+    private val settingsPrefs by lazy {
+        getSharedPreferences("settings", MODE_PRIVATE)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        // Load saved theme BEFORE super.onCreate
-        val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Allow layout behind system bars (no AndroidX)
+        // Allow layout behind system bars
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
-        // Inflate layout FIRST
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+
         setContentView(R.layout.view_home)
 
-        // Root view for safe-area padding
+        // Root safe-area padding
         val root = findViewById<View>(R.id.root)
-
         root.setOnApplyWindowInsetsListener { view, insets ->
             view.setPadding(
                 insets.systemWindowInsetLeft + dp(32),
@@ -50,14 +51,18 @@ class MainActivity : Activity() {
             insets
         }
 
-        // Find views
+        // Views
         timeText = findViewById(R.id.time)
         dateText = findViewById(R.id.date)
         batteryText = findViewById(R.id.battery)
         listView = findViewById(R.id.appList)
 
         // Clock
-        clockManager = ClockManager(timeText, dateText)
+        clockManager = ClockManager(
+            timeTextView = timeText,
+            dateTextView = dateText,
+            prefs = prefs
+        )
         clockManager.start()
 
         // Battery
@@ -69,41 +74,58 @@ class MainActivity : Activity() {
         // App list
         AppListHelper(this, listView).setup()
 
-        // Open system clock
-        timeText.setOnClickListener {
+        // Clock click → open system clock
+        timeText.setOnClickListener { openSystemClock() }
 
-            val pm = packageManager
-
-            val intents = listOf(
-                // Standard (rarely works, but try first)
-                Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_CLOCK"),
-
-                // AOSP / many OEM clocks
-                Intent("android.intent.action.SHOW_ALARMS"),
-
-                // Last resort: let user choose
-                Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_ALARM")
-            )
-
-            for (intent in intents) {
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                if (intent.resolveActivity(pm) != null) {
-                    startActivity(intent)
-                    return@setOnClickListener
-                }
-            }
-
-            Toast.makeText(this, "No clock app found", Toast.LENGTH_SHORT).show()
-        }
-
-        // Settings button
+        // Settings
         findViewById<View>(R.id.settings_button).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        syncSettings()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         batteryHelper.unregister()
+    }
+
+    // -------------------------
+    // Helpers
+    // -------------------------
+
+    private fun syncSettings() {
+        val showClock = settingsPrefs.getBoolean("show_clock", true)
+        val showDate = settingsPrefs.getBoolean("show_date", true)
+        val showBattery = settingsPrefs.getBoolean("show_battery", true)
+
+        timeText.visibility = if (showClock) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.date_row).visibility = if (showDate) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.battery_row).visibility =
+            if (showBattery) View.VISIBLE else View.GONE
+    }
+
+
+    private fun openSystemClock() {
+        val pm = packageManager
+
+        val intents = listOf(
+            Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_CLOCK"),
+            Intent("android.intent.action.SHOW_ALARMS"),
+            Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_ALARM")
+        )
+
+        for (intent in intents) {
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            if (intent.resolveActivity(pm) != null) {
+                startActivity(intent)
+                return
+            }
+        }
+
+        Toast.makeText(this, "No clock app found", Toast.LENGTH_SHORT).show()
     }
 }

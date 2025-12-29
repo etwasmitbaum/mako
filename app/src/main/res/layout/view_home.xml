@@ -22,15 +22,21 @@
             android:paddingBottom="4dp"
             android:gravity="center_vertical">
 
-            <Button
-                android:id="@+id/time"
-                android:textSize="38sp"
-                android:background="@android:color/transparent"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:id="@+id/clock"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="start|center_vertical"
-                android:textColor="?attr/foregroundColor" />
+                android:gravity="start|center_vertical">
+
+                <Button
+                    android:id="@+id/time"
+                    android:textSize="38sp"
+                    android:background="@android:color/transparent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/foregroundColor" />
+            </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/settings_button"
@@ -49,6 +55,7 @@
 
         <!-- Date -->
         <LinearLayout
+            android:id="@+id/date_row"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,6 +78,7 @@
 
         <!-- Battery -->
         <LinearLayout
+            android:id="@+id/battery_row"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
