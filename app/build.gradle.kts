@@ -22,19 +22,10 @@ android {
         applicationId = "com.rama.mako"
         minSdk = 21
         targetSdk = 36
-        versionCode = 13
-        versionName = "26.01.0816"
+        versionCode = 14
+        versionName = "26.01.0821"
 
         testInstrumentationRunner = "android.test.InstrumentationTestRunner"
-    }
-
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-            isUniversalApk = true
-        }
     }
 
     signingConfigs {
