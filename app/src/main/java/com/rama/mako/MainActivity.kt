@@ -29,7 +29,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_home)
 
-        val padding = dp(16)
+        val padding = dp(32)
 
         val root = findViewById<View>(R.id.root)
         root.setOnApplyWindowInsetsListener { view, insets ->
