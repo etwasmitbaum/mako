@@ -10,103 +10,34 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start"
-        android:padding="32dp">
+        android:gravity="start">
 
-        <FrameLayout
-            android:id="@+id/activate_button"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
+            android:layout_marginBottom="16sp"
+            android:textSize="32sp"
+            android:textColor="@color/foreground_color"
+            android:text="@string/settings"
+            android:textStyle="bold" />
 
-            <TextView
-                android:text="@string/set_default"
-                android:textSize="16sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/foreground_color" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/reset_button"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:text="@string/refresh_launcher"
-                android:textSize="16sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/foreground_color" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/change_apps_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:text="@string/edit_apps"
-                android:textSize="16sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/foreground_color" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/wallpaper_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:text="@string/change_wallpaper"
-                android:textSize="16sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/foreground_color" />
-        </FrameLayout>
+            android:layout_marginBottom="8sp"
+            android:textSize="16sp"
+            android:textColor="@color/foreground_color"
+            android:text="Clock"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:orientation="vertical"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="8sp"
             android:background="@drawable/bg_secondary_rounded"
             android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/temp_unit_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:textSize="16sp"
-                android:textColor="@color/foreground_color"
-                android:text="@string/clock_format"
-                android:textStyle="bold" />
 
             <RadioGroup
                 android:layout_width="match_parent"
@@ -148,96 +79,107 @@
             </RadioGroup>
         </LinearLayout>
 
-        <FrameLayout
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8sp"
+            android:textSize="16sp"
+            android:textColor="@color/foreground_color"
+            android:text="Date and Battery"
+            android:textStyle="bold" />
+
+        <com.rama.mako.widgets.WdCheckbox
+            android:id="@+id/show_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
+            app:text="@string/show_date" />
 
-            <CheckBox
-                android:id="@+id/show_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/foreground_color"
-                android:text="@string/show_date" />
-        </FrameLayout>
-
-        <FrameLayout
+        <com.rama.mako.widgets.WdCheckbox
+            android:id="@+id/show_year_day"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
+            app:text="@string/show_year_day" />
 
-            <CheckBox
-                android:id="@+id/show_year_day"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/foreground_color"
-                android:text="@string/show_year_day" />
-        </FrameLayout>
-
-        <FrameLayout
+        <com.rama.mako.widgets.WdCheckbox
+            android:id="@+id/show_battery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
+            app:text="@string/show_battery" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8sp"
+            android:textSize="16sp"
+            android:textColor="@color/foreground_color"
+            android:text="Groups"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/groups"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8sp"
+            android:padding="16sp"
+            android:orientation="vertical"
             android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
+            android:focusableInTouchMode="true"></LinearLayout>
 
-            <CheckBox
-                android:id="@+id/show_battery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/foreground_color"
-                android:text="@string/show_battery" />
-        </FrameLayout>
+        <com.rama.mako.widgets.WdButton
+            android:id="@+id/add_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="+ Add New Group" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8sp"
+            android:textSize="16sp"
+            android:textColor="@color/foreground_color"
+            android:text="Others"
+            android:textStyle="bold" />
 
-        <FrameLayout
+        <com.rama.mako.widgets.WdButton
+            android:id="@+id/activate_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/set_default" />
+
+        <com.rama.mako.widgets.WdButton
+            android:id="@+id/reset_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/refresh_launcher" />
+
+        <com.rama.mako.widgets.WdButton
+            android:id="@+id/change_apps_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/edit_apps" />
+
+        <com.rama.mako.widgets.WdButton
+            android:id="@+id/wallpaper_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/change_wallpaper" />
+
+        <com.rama.mako.widgets.WdButtonNav
             android:id="@+id/about_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp"
             android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_secondary_rounded"
-            android:gravity="center_vertical">
+            android:text="@string/about" />
 
-            <TextView
-                android:text="@string/about"
-                android:textSize="16sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/foreground_color" />
-        </FrameLayout>
-
-        <LinearLayout
+        <com.rama.mako.widgets.WdButtonNav
             android:id="@+id/close_button"
-            android:orientation="horizontal"
-            android:clickable="true"
-            android:focusable="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp"
-            android:background="@drawable/bg_button_danger"
-            android:gravity="center">
-
-            <TextView
-                android:text="@string/close"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/bg_color" />
-        </LinearLayout>
+            android:text="@string/close" />
     </LinearLayout>
 </ScrollView>

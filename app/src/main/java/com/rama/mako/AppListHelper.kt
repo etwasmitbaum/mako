@@ -11,39 +11,73 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.PopupMenu
 import android.widget.TextView
-import android.widget.ImageView
 import android.widget.Toast
+import com.rama.mako.activities.SettingsActivity
 
 class AppListHelper(
     private val context: Context,
     private val listView: ListView
 ) {
 
-    private val prefs = context.getSharedPreferences("favorites", Context.MODE_PRIVATE)
+    private val groupPrefs = context.getSharedPreferences("groups", Context.MODE_PRIVATE)
+    private val groupsListPrefs = context.getSharedPreferences("groups_list", Context.MODE_PRIVATE)
+
+    // pkg -> group name
+    private fun getGroup(pkg: String): String? = groupPrefs.getString(pkg, null)
+
+    private fun setGroup(pkg: String, group: String?) {
+        groupPrefs.edit().putString(pkg, group).apply()
+    }
+
     private val namePrefs = context.getSharedPreferences("app_names", Context.MODE_PRIVATE)
     private val pm = context.packageManager
-    private val apps = mutableListOf<ResolveInfo>()
-    private lateinit var adapter: ArrayAdapter<ResolveInfo>
 
-    // ------------------------------------------------------------------------
-    // Public API
-    // ------------------------------------------------------------------------
+    private val items = mutableListOf<ListItem>()
+    private lateinit var adapter: ArrayAdapter<ListItem>
+
     fun setup() {
-        loadApps()
-        sortApps()
+        buildItems()
         setupAdapter()
         setupScrollListener()
     }
 
     fun refresh() {
-        loadApps()
-        sortApps()
+        buildItems()
         adapter.notifyDataSetChanged()
     }
 
-    // ------------------------------------------------------------------------
-    // Data
-    // ------------------------------------------------------------------------
+    private fun buildItems() {
+        val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
+        val allApps = pm.queryIntentActivities(intent, 0)
+        val settingsPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val ungroupedLabel = context.getString(R.string.ungrouped_label)
+
+        val groups = getGroups() // this is already in the order the user wants
+
+        // Build group -> apps map
+        val groupedMap = allApps.groupBy { app ->
+            getGroup(app.activityInfo.packageName) ?: ungroupedLabel
+        }
+
+        items.clear()
+
+        // Add groups in the order of `groups` list
+        groups.forEach { groupName ->
+            if (!groupedMap.containsKey(groupName)) return@forEach
+            if (!settingsPrefs.getBoolean("group_visibility_$groupName", true)) return@forEach
+
+            items.add(ListItem.Header(groupName))
+            groupedMap[groupName]!!.sortedBy { getDisplayName(it).lowercase() }
+                .forEach { items.add(ListItem.App(it)) }
+        }
+
+        // Finally add ungrouped apps (if any)
+        groupedMap[ungroupedLabel]?.let { ungroupedApps ->
+            items.add(ListItem.Header(ungroupedLabel))
+            ungroupedApps.sortedBy { getDisplayName(it).lowercase() }
+                .forEach { items.add(ListItem.App(it)) }
+        }
+    }
 
     private fun sanitizeSystemLabel(raw: String): String {
         return raw
@@ -66,35 +100,24 @@ class AppListHelper(
         return sanitizeSystemLabel(systemLabel)
     }
 
-    private fun loadApps() {
-        val intent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-        apps.clear()
-        apps.addAll(pm.queryIntentActivities(intent, 0))
-    }
-
-    private fun sortApps() {
-        apps.sortWith(
-            compareByDescending<ResolveInfo> { isFavorite(it.activityInfo.packageName) }
-                .thenBy { getDisplayName(it).lowercase() }
-        )
-    }
-
-    private fun isFavorite(pkg: String) = prefs.getBoolean(pkg, false)
-    private fun setFavorite(pkg: String, value: Boolean) {
-        prefs.edit().putBoolean(pkg, value).apply()
-    }
-
     private fun getCustomName(pkg: String): String? = namePrefs.getString(pkg, null)
     private fun setCustomName(pkg: String, name: String) =
         namePrefs.edit().putString(pkg, name).apply()
 
     private fun clearCustomName(pkg: String) = namePrefs.edit().remove(pkg).apply()
 
-    // ------------------------------------------------------------------------
-    // Actions
-    // ------------------------------------------------------------------------
+    private fun getGroups(): MutableList<String> {
+        return groupsListPrefs
+            .getStringSet("groups", mutableSetOf("------ Favorites"))!!
+            .toMutableList()
+            .sortedBy { it.lowercase() }
+            .toMutableList()
+    }
+
+    private fun saveGroups(groups: List<String>) {
+        groupsListPrefs.edit().putStringSet("groups", groups.toSet()).apply()
+    }
+
     private fun launchApp(pkg: String) {
         val intent = pm.getLaunchIntentForPackage(pkg)
         if (intent != null) {
@@ -150,19 +173,69 @@ class AppListHelper(
             .show()
     }
 
-    // ------------------------------------------------------------------------
-    // Context menu
-    // ------------------------------------------------------------------------
+    private sealed class ListItem {
+        data class Header(val title: String) : ListItem()
+        data class App(val info: ResolveInfo) : ListItem()
+    }
+
+    private fun showGroupsDialog(app: ResolveInfo) {
+        val pkg = app.activityInfo.packageName
+
+        val view = View.inflate(context, R.layout.dialog_groups, null)
+        val dialog = AlertDialog.Builder(context)
+            .setView(view)
+            .setCancelable(true)
+            .create()
+
+        val closeBtn = view.findViewById<View>(R.id.close_button)
+        val container = view.findViewById<LinearLayout>(R.id.groups)
+
+        var groups = getGroups()
+        val currentGroup = getGroup(pkg)
+
+        fun renderGroups() {
+            container.removeAllViews()
+
+            val radioGroup = RadioGroup(context)
+
+            groups.forEach { group ->
+                val row = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                }
+
+                val radio = RadioButton(context).apply {
+                    text = group
+                    isChecked = group == currentGroup
+                }
+
+                row.addView(radio)
+
+                radio.setOnClickListener {
+                    setGroup(pkg, group)
+                    refresh()
+                    dialog.dismiss()
+                }
+
+                radioGroup.addView(row)
+            }
+
+            container.addView(radioGroup)
+        }
+
+        renderGroups()
+
+        closeBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun showContextMenu(anchor: View, app: ResolveInfo) {
         val pkg = app.activityInfo.packageName
-        val isFav = isFavorite(pkg)
 
         val popup = PopupMenu(context, anchor)
         popup.menuInflater.inflate(R.menu.app_context_menu, popup.menu)
-
-        // Update favorite menu title based on current state
-        popup.menu.findItem(R.id.action_favorite)?.title =
-            context.getString(if (isFav) R.string.remove_from_favorites else R.string.add_to_favorites)
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -172,9 +245,7 @@ class AppListHelper(
                 }
 
                 R.id.action_favorite -> {
-                    val newState = !isFavorite(pkg)
-                    setFavorite(pkg, newState)
-                    refresh()
+                    showGroupsDialog(app)
                     true
                 }
 
@@ -191,57 +262,64 @@ class AppListHelper(
         popup.show()
     }
 
-    // ------------------------------------------------------------------------
-    // Adapter
-    // ------------------------------------------------------------------------
     private fun setupAdapter() {
-        adapter = object : ArrayAdapter<ResolveInfo>(
+        adapter = object : ArrayAdapter<ListItem>(
             context,
-            R.layout.app_list_item,
-            R.id.open_app_button,
-            apps
+            0,
+            items
         ) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = super.getView(position, convertView, parent)
-                val app = getItem(position) ?: return view
-                val pkg = app.activityInfo.packageName
 
-                val label = view.findViewById<TextView>(R.id.open_app_button)
-                val emptySpace = view.findViewById<View>(R.id.empty_space)
-                val bottomBorder = view.findViewById<View>(R.id.favorite_bottom_border)
+            override fun getViewTypeCount() = 2
 
-                emptySpace.setOnLongClickListener {
-                    context.startActivity(
-                        Intent(context, SettingsActivity::class.java)
-                    )
-                    true
+            override fun getItemViewType(position: Int): Int {
+                return when (getItem(position)) {
+                    is ListItem.Header -> 0
+                    is ListItem.App -> 1
+                    else -> 1
                 }
-
-                // Set label
-                label.text = getDisplayName(app)
-
-                bottomBorder.visibility =
-                    if (isLastFavorite(position)) View.VISIBLE else View.GONE
-
-                // Clicks
-                label.setOnClickListener { launchApp(pkg) }
-                emptySpace.setOnClickListener { launchApp(pkg) }
-
-                label.setOnLongClickListener {
-                    showContextMenu(it, app)
-                    true
-                }
-
-                return view
             }
 
-            private fun isLastFavorite(position: Int): Boolean {
-                val current = getItem(position) ?: return false
-                val pkg = current.activityInfo.packageName
-                if (!isFavorite(pkg)) return false
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val item = getItem(position)!!
 
-                val next = apps.getOrNull(position + 1)
-                return next == null || !isFavorite(next.activityInfo.packageName)
+                return when (item) {
+                    is ListItem.Header -> {
+                        val view =
+                            convertView ?: View.inflate(context, R.layout.app_list_header, null)
+                        val text = view.findViewById<TextView>(R.id.header_text)
+                        text.text = item.title.uppercase()
+                        view
+                    }
+
+                    is ListItem.App -> {
+                        val view =
+                            convertView ?: View.inflate(context, R.layout.list_item_app, null)
+                        val app = item.info
+                        val pkg = app.activityInfo.packageName
+
+                        val label = view.findViewById<TextView>(R.id.open_app_button)
+                        val emptySpace = view.findViewById<View>(R.id.empty_space)
+
+                        label.text = getDisplayName(app)
+
+                        label.setOnClickListener { launchApp(pkg) }
+                        emptySpace.setOnClickListener { launchApp(pkg) }
+
+                        label.setOnLongClickListener {
+                            showContextMenu(it, app)
+                            true
+                        }
+
+                        emptySpace.setOnLongClickListener {
+                            context.startActivity(
+                                Intent(context, SettingsActivity::class.java)
+                            )
+                            true
+                        }
+
+                        view
+                    }
+                }
             }
         }
 
