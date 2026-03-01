@@ -32,10 +32,13 @@ android {
         release {
             minifyEnabled = false
             vcsInfo.include = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.debug
         }
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-dev"
+            signingConfig = signingConfigs.debug
         }
     }
 
