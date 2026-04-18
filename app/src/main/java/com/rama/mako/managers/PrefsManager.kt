@@ -37,7 +37,7 @@ class PrefsManager private constructor(context: Context) {
 
     object PrefKeys {
         const val APPS_SEARCH = "apps:search"
-        const val APPS_ALWAYS_SEARCH_BAR = "apps:always_search_bar"
+        const val APPS_SEARCH_ALWAYS_VISIBLE = "apps:search:always_visible"
         const val APPS_ICONS = "apps:icons"
         const val APPS_ICON_SOURCE = "apps:icon_source"
         const val APPS_ICON_PACK_PACKAGE = "apps:icon_pack_package"
@@ -270,7 +270,7 @@ class PrefsManager private constructor(context: Context) {
         prefs.getBoolean(PrefKeys.APPS_SEARCH, false)
 
     fun isSearchBarAlwaysVisible(): Boolean =
-        prefs.getBoolean(PrefKeys.APPS_ALWAYS_SEARCH_BAR, false)
+        prefs.getBoolean(PrefKeys.APPS_SEARCH_ALWAYS_VISIBLE, false)
 
     fun hasIconsVisible(): Boolean =
         getIconSource() != IconSource.NONE
